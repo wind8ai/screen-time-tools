@@ -1,6 +1,6 @@
 ﻿#requires -Version 5.1
 <#
-Windows shutdown timer entry point.
+Windows lock-screen timer entry point.
 Without -Minutes, prompt once with a default of 60 minutes.
 Use -DryRun to test without performing the action.
 Keep countdown.ps1 in the same directory.
@@ -22,7 +22,7 @@ try {
         throw '缺少 countdown.ps1，请将整个工具目录解压后再运行。'
     }
     # Forward only bound arguments so omitted Minutes still triggers the prompt.
-    & $component -Action 'Shutdown' @PSBoundParameters
+    & $component -Action 'Lock' @PSBoundParameters
     exit $LASTEXITCODE
 }
 catch {
