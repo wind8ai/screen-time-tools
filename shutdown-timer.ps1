@@ -1,7 +1,7 @@
 ﻿#requires -Version 5.1
 <#
 Windows shutdown timer entry point.
-Without -Minutes, prompt once with a default of 60 minutes.
+Without -Minutes, open the settings dialog with a default of 60 minutes.
 Use -DryRun to test without performing the action.
 Keep countdown.ps1 in the same directory.
 #>
@@ -21,7 +21,7 @@ try {
     if (-not (Test-Path -LiteralPath $component -PathType Leaf)) {
         throw '缺少 countdown.ps1，请将整个工具目录解压后再运行。'
     }
-    # Forward only bound arguments so omitted Minutes still triggers the prompt.
+    # Forward only bound arguments so omitted Minutes opens the settings dialog.
     & $component -Action 'Shutdown' @PSBoundParameters
     exit $LASTEXITCODE
 }
