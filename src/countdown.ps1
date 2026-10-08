@@ -3,6 +3,7 @@
 Shared Windows countdown for shutdown-timer.ps1 and lock-timer.ps1.
 The launcher opens a duration picker and starts one hidden STA worker of this file.
 Only the worker owns the countdown window and the eventual action.
+锁屏与关机共用设置、倒计时及语言资源；只有工作进程执行到期动作。
 #>
 [CmdletBinding()]
 param(
@@ -12,13 +13,15 @@ param(
     [ValidateRange(1, 2147483647)]
     [int]$Minutes = 60,
     [switch]$DryRun,
-    [switch]$Worker
+    [switch]$Worker,
+    [ValidateSet('auto', 'zh-CN', 'en-US')]
+    [string]$Language
 )
 
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
-$actionText = if ($Action -eq 'Shutdown') { '关机' } else { '锁屏' }
-$caption = '定时' + $actionText
+. (Join-Path $PSScriptRoot 'localization.ps1')
+Set-ScreenTimeLanguage (Resolve-ScreenTimeLanguage -RequestedLanguage $Language)
 
 function New-CountdownBrush {
     param([string]$Color)
@@ -39,13 +42,15 @@ function Update-DurationPreview {
         $state.Error.Text = ''
         $state.InputBorder.BorderBrush = $state.BorderBrush
         $due = [DateTime]::Now.AddMinutes($value)
-        $day = if ($due.Date -eq [DateTime]::Today) { '今天' } else { $due.ToString('M月d日') }
-        $state.Estimate.Text = $day + ' ' + $due.ToString('HH:mm')
+        $day = if ($due.Date -eq [DateTime]::Today) { Get-ScreenTimeText 'Today' } else {
+            $due.ToString((Get-ScreenTimeText 'DateFormat'), $script:uiCulture)
+        }
+        $state.Estimate.Text = Get-ScreenTimeText 'EstimateTime' @($day, $due.ToString('HH:mm', $script:uiCulture))
     }
     else {
-        $state.Error.Text = '请输入大于 0 的整数分钟数。'
+        $state.Error.Text = Get-ScreenTimeText 'MinutesInvalid'
         $state.InputBorder.BorderBrush = $state.WarningBrush
-        $state.Estimate.Text = '填写时长后显示预计时间'
+        $state.Estimate.Text = Get-ScreenTimeText 'EstimateEmpty'
     }
     foreach ($button in $state.Presets) {
         $selected = $valid -and [int]$button.Tag -eq $value
@@ -55,15 +60,39 @@ function Update-DurationPreview {
     }
 }
 
+function Update-SetupLanguage {
+    $state = $script:setupState
+    $window = $state.Window
+    $mode = $state.Mode
+    $window.Title = Get-ScreenTimeText 'WindowTitle' @((Get-ScreenTimeText ($mode + 'Caption')))
+    $window.FontFamily = [System.Windows.Media.FontFamily]::new(
+        $(if ($script:uiLanguage -eq 'zh-CN') { 'Microsoft YaHei UI' } else { 'Segoe UI' }))
+    $window.FindName('AppLabel').Text = Get-ScreenTimeText $(if ($state.TestMode) { 'TestAppName' } else { 'AppName' })
+    $window.FindName('HeadingText').Text = Get-ScreenTimeText ($mode + $(if ($state.TestMode) { 'TestHeading' } else { 'Heading' }))
+    $window.FindName('SubtitleText').Text = Get-ScreenTimeText ($mode + $(if ($state.TestMode) { 'TestSubtitle' } else { 'Subtitle' }))
+    $window.FindName('HintText').Text = Get-ScreenTimeText $(if ($state.TestMode) { 'TestHint' } else { $mode + 'Hint' })
+    $window.FindName('EstimateLabel').Text = Get-ScreenTimeText $(if ($state.TestMode) { 'TestEstimateLabel' } else { $mode + 'EstimateLabel' })
+    $window.FindName('CustomDurationLabel').Text = Get-ScreenTimeText 'CustomDuration'
+    $window.FindName('MinutesUnitLabel').Text = Get-ScreenTimeText 'MinutesUnit'
+    $window.FindName('CancelButton').Content = Get-ScreenTimeText 'Cancel'
+    $state.Start.Content = Get-ScreenTimeText 'Start'
+    [System.Windows.Automation.AutomationProperties]::SetName($state.Input, (Get-ScreenTimeText 'MinutesInputName'))
+    [System.Windows.Automation.AutomationProperties]::SetName($window.FindName('CloseButton'), (Get-ScreenTimeText 'CloseName'))
+    [System.Windows.Automation.AutomationProperties]::SetName($window.FindName('LanguagePicker'), (Get-ScreenTimeText 'LanguagePickerName'))
+    foreach ($button in $state.Presets) {
+        $button.Content = Get-ScreenTimeText 'MinutesPreset' @([int]$button.Tag)
+    }
+    Update-DurationPreview
+}
+
 function Show-DurationPicker {
     param([string]$Mode, [bool]$TestMode)
     Add-Type -AssemblyName PresentationFramework
     Add-Type -AssemblyName PresentationCore
     Add-Type -AssemblyName WindowsBase
     if ([System.Threading.Thread]::CurrentThread.GetApartmentState() -ne 'STA') {
-        throw '窗口需要 STA 模式，请使用 BAT 启动器或按说明启动脚本。'
+        throw (Get-ScreenTimeText 'NeedsSTA')
     }
-    $label = if ($Mode -eq 'Shutdown') { '关机' } else { '锁屏' }
     $accent = if ($Mode -eq 'Shutdown') { '#D97845' } else { '#4F6BF0' }
     $soft = if ($Mode -eq 'Shutdown') { '#FFF3EB' } else { '#EEF2FF' }
     [xml]$setupXaml = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ui\duration-picker.xaml') -Raw -Encoding UTF8
@@ -71,8 +100,11 @@ function Show-DurationPicker {
     try { $window = [System.Windows.Markup.XamlReader]::Load($reader) }
     finally { $reader.Close() }
     # Initialize every field before attaching callbacks to the modal dialog.
+    # 注册设置窗口回调前，初始化全部状态。
     $script:setupState = [pscustomobject]@{
         Window = $window
+        Mode = $Mode
+        TestMode = $TestMode
         Input = $window.FindName('MinutesInput')
         InputBorder = $window.FindName('MinutesBorder')
         Error = $window.FindName('ValidationText')
@@ -94,26 +126,20 @@ function Show-DurationPicker {
     $state = $script:setupState
     $result = $null
     try {
-        $window.Title = '定时' + $label + ' · 屏幕时间'
-        $window.FindName('HeadingText').Text = '多久后' + $label + '？'
-        $window.FindName('SubtitleText').Text = if ($Mode -eq 'Shutdown') {
-            '选择时长，到时自动关闭电脑。'
-        } else { '选择时长，到时自动锁定电脑。' }
-        $window.FindName('HintText').Text = if ($Mode -eq 'Shutdown') {
-            '到时将强制关闭应用，请提前保存工作。'
-        } else { '解锁时使用 Windows 登录方式。' }
-        $window.FindName('EstimateLabel').Text = '预计' + $label
         $window.FindName('EstimatePanel').Background = $state.AccentSoft
         $state.Estimate.Foreground = $state.AccentBrush
         $state.Start.Background = $state.AccentBrush
         $state.Start.BorderBrush = $state.AccentBrush
-        if ($TestMode) {
-            $window.FindName('AppLabel').Text += ' · 测试模式'
-            $window.FindName('HeadingText').Text = '测试' + $label + '倒计时'
-            $window.FindName('SubtitleText').Text = '完整体验倒计时，不会执行' + $label + '。'
-            $window.FindName('HintText').Text = '测试结束后，计时窗口会自动关闭。'
-            $window.FindName('EstimateLabel').Text = '预计结束'
-        }
+        $languagePicker = $window.FindName('LanguagePicker')
+        $languagePicker.SelectedIndex = if ($script:uiLanguage -eq 'zh-CN') { 0 } else { 1 }
+        $languagePicker.Add_SelectionChanged({
+            param($sender, $eventArgs)
+            if ($null -ne $sender.SelectedItem) {
+                Set-ScreenTimeLanguage ([string]$sender.SelectedItem.Tag)
+                Update-SetupLanguage
+            }
+        })
+        Update-SetupLanguage
         $window.FindName('CloseButton').Add_Click({
             if ($null -ne $script:setupState) {
                 $script:setupState.Window.DialogResult = $false
@@ -162,7 +188,7 @@ function Show-DurationPicker {
 if (-not $Worker) {
     try {
         if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
-            throw '本工具需要 Windows 10/11 和 Windows PowerShell 5.1。'
+            throw (Get-ScreenTimeText 'NeedsWindows')
         }
         if (-not $PSBoundParameters.ContainsKey('Minutes')) {
             $pickedMinutes = Show-DurationPicker -Mode $Action -TestMode ([bool]$DryRun)
@@ -170,10 +196,10 @@ if (-not $Worker) {
             $Minutes = [int]$pickedMinutes
         }
         $powerShellExe = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
-        $arguments = '-NoLogo -NoProfile -STA -WindowStyle Hidden -File "{0}" -Action {1} -Minutes {2} -Worker' -f $PSCommandPath, $Action, $Minutes
+        $arguments = '-NoLogo -NoProfile -STA -WindowStyle Hidden -File "{0}" -Action {1} -Minutes {2} -Language {3} -Worker' -f $PSCommandPath, $Action, $Minutes, $script:uiLanguage
         if ($DryRun) { $arguments += ' -DryRun' }
         $null = Start-Process -FilePath $powerShellExe -ArgumentList $arguments -WindowStyle Hidden -PassThru
-        Write-Host '计时窗口正在打开。'
+        Write-Host (Get-ScreenTimeText 'Opening')
     }
     catch {
         [Console]::Error.WriteLine($_.Exception.Message)
@@ -200,14 +226,37 @@ function Set-CountdownDisplay {
     $state.Progress.Value = [math]::Max(0.0, [math]::Min(100.0,
         100.0 * $RemainingSeconds / $state.DurationSeconds))
     $state.Status.Text = if ($RemainingSeconds -eq 0) {
-        if ($state.DryRun) { '测试完成' } else { '准备' + $state.ActionText }
+        if ($state.DryRun) { Get-ScreenTimeText 'StatusTestFinished' } else { Get-ScreenTimeText ($state.Action + 'StatusEnding') }
     }
     elseif ($warning) {
-        if ($state.DryRun) { '即将结束' } else { '即将' + $state.ActionText }
+        if ($state.DryRun) { Get-ScreenTimeText 'StatusTestEnding' } else { Get-ScreenTimeText ($state.Action + 'StatusFinishing') }
     }
     else {
-        if ($state.DryRun) { '测试中' } else { '计时中' }
+        Get-ScreenTimeText $(if ($state.DryRun) { 'StatusTestRunning' } else { 'StatusRunning' })
     }
+}
+
+function Update-CountdownLanguage {
+    $state = $script:timerState
+    $window = $state.Window
+    $state.ActionText = Get-ScreenTimeText ($state.Action + 'Action')
+    $window.Title = Get-ScreenTimeText 'WindowTitle' @((Get-ScreenTimeText ($state.Action + 'Caption')))
+    $window.FontFamily = [System.Windows.Media.FontFamily]::new(
+        $(if ($script:uiLanguage -eq 'zh-CN') { 'Microsoft YaHei UI' } else { 'Segoe UI' }))
+    $window.FindName('ActionText').Text = $state.ActionText
+    $window.ToolTip = Get-ScreenTimeText 'DragHint'
+    if ($state.DryRun) {
+        $window.Title = Get-ScreenTimeText 'TestTitle' @($window.Title)
+        $window.FindName('ActionText').Text = Get-ScreenTimeText 'TestBadge' @($state.ActionText)
+        $window.ToolTip = Get-ScreenTimeText 'TestTooltip' @($window.ToolTip)
+    }
+    if ($null -ne $state.DueTime) {
+        $state.Due.Text = Get-ScreenTimeText 'DueTime' @($state.DueTime.ToString('HH:mm', $script:uiCulture))
+    }
+    foreach ($item in $window.ContextMenu.Items) {
+        $item.IsChecked = $item.Tag -eq $script:uiLanguage
+    }
+    Set-CountdownDisplay ([long][math]::Max(0.0, [math]::Ceiling($state.DurationSeconds - $state.Clock.Elapsed.TotalSeconds)))
 }
 
 try {
@@ -215,22 +264,27 @@ try {
     Add-Type -AssemblyName PresentationCore
     Add-Type -AssemblyName WindowsBase
     if ([System.Threading.Thread]::CurrentThread.GetApartmentState() -ne 'STA') {
-        throw '窗口需要 STA 模式，请使用 BAT 启动器或按说明启动脚本。'
+        throw (Get-ScreenTimeText 'NeedsSTA')
     }
 
     # Reuse the previous shutdown timer's mutex for running-copy compatibility.
+
+    # 沿用旧版互斥锁，防止旧版和新版同时运行计时。
     # Shutdown, lock and DryRun all share one timer per Windows session.
+    # 关机、锁屏和测试模式在同一 Windows 会话中共用一个计时任务。
     $mutex = [System.Threading.Mutex]::new($false, 'Local\Wind8ai.WindowsShutdownTimer.v1')
     try { $ownsMutex = $mutex.WaitOne(0) }
     catch [System.Threading.AbandonedMutexException] { $ownsMutex = $true }
     if (-not $ownsMutex) {
         $null = [System.Windows.MessageBox]::Show(
-            '已有计时在运行，请先结束当前计时，再开始新任务。', '屏幕时间',
+            (Get-ScreenTimeText 'OnlyOne'), (Get-ScreenTimeText 'AppName'),
             [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
         exit 1
     }
 
     # Compile before starting the clock. DryRun never loads the native wrapper.
+
+    # 开始计时前编译原生接口；测试模式不加载原生接口。
     if ($Action -eq 'Lock' -and -not $DryRun) {
         if (-not ('ScreenTimeTools.Workstation' -as [type])) {
             Add-Type -TypeDefinition @'
@@ -260,12 +314,16 @@ namespace ScreenTimeTools
     }
 
     # Assign position numerically rather than inserting locale-sensitive XAML.
+
+    # 用数值设置位置，避免区域格式影响 XAML。
     [xml]$xaml = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ui\countdown.xaml') -Raw -Encoding UTF8
     $reader = [System.Xml.XmlNodeReader]::new($xaml)
     try { $window = [System.Windows.Markup.XamlReader]::Load($reader) }
     finally { $reader.Close() }
 
     # Callbacks use this script's state, independent of either entry script.
+
+    # 回调使用当前脚本状态，不依赖锁屏或关机入口。
     $script:timerState = [pscustomobject]@{
         Window = $window
         Text = $window.FindName('CountdownText')
@@ -287,20 +345,27 @@ namespace ScreenTimeTools
         Completed = $false
         DryRun = [bool]$DryRun
         Action = $Action
-        ActionText = $actionText
+        ActionText = (Get-ScreenTimeText ($Action + 'Action'))
+        DueTime = $null
         Failure = $null
     }
     $state = $script:timerState
-    $window.Title = $caption + ' · 屏幕时间'
-    $window.FindName('ActionText').Text = $actionText
     $window.FindName('ActionText').Foreground = $state.AccentBrush
     $window.FindName('ActionBadge').Background = New-CountdownBrush $(if ($Action -eq 'Shutdown') { '#FFF3EB' } else { '#EEF2FF' })
-    $window.ToolTip = '拖动可调整位置'
-    if ($DryRun) {
-        $window.Title += ' · 测试模式'
-        $window.FindName('ActionText').Text += ' · 测试'
-        $window.ToolTip += '；测试结束不会' + $actionText
+    $window.ContextMenu = [System.Windows.Controls.ContextMenu]::new()
+    foreach ($locale in @('zh-CN', 'en-US')) {
+        $item = [System.Windows.Controls.MenuItem]::new()
+        $item.Header = if ($locale -eq 'zh-CN') { '中文' } else { 'English' }
+        $item.Tag = $locale
+        $item.IsCheckable = $true
+        $item.Add_Click({
+            param($sender, $eventArgs)
+            Set-ScreenTimeLanguage ([string]$sender.Tag)
+            Update-CountdownLanguage
+        })
+        $null = $window.ContextMenu.Items.Add($item)
     }
+    Update-CountdownLanguage
     $window.Add_MouseLeftButtonDown({
         $current = $script:timerState
         if (-not $current.Completed) {
@@ -322,11 +387,14 @@ namespace ScreenTimeTools
     })
 
     # Start after the first render, not when the process is created.
+
+    # 第一次完成渲染后开始计时。
     $window.Add_ContentRendered({
         $state = $script:timerState
         if (-not $state.Started) {
             $state.Started = $true
-            $state.Due.Text = '预计 ' + [DateTime]::Now.AddSeconds($state.DurationSeconds).ToString('HH:mm')
+            $state.DueTime = [DateTime]::Now.AddSeconds($state.DurationSeconds)
+            $state.Due.Text = Get-ScreenTimeText 'DueTime' @($state.DueTime.ToString('HH:mm', $script:uiCulture))
             $state.Window.Left = [math]::Max(0.0, ([System.Windows.SystemParameters]::PrimaryScreenWidth - $state.Window.ActualWidth) / 2.0)
             $state.Clock.Start()
             $state.Timer.Start()
@@ -347,12 +415,13 @@ namespace ScreenTimeTools
                 $state.Finishing = $true
                 $state.Timer.Stop()
                 # Give the dispatcher time to render 00:00 before either action.
+                # 为窗口留出显示 00:00 的时间，然后执行到期动作。
                 $state.FinishTimer.Start()
             }
         }
         catch {
             $state = $script:timerState
-            $state.Failure = '计时失败，未执行' + $state.ActionText + '：' + $_.Exception.Message
+            $state.Failure = Get-ScreenTimeText 'TimingFailed' @($state.ActionText, $_.Exception.Message)
             $state.Timer.Stop()
             $state.FinishTimer.Stop()
             $state.Completed = $true
@@ -371,11 +440,11 @@ namespace ScreenTimeTools
                 switch ($state.Action) {
                     'Shutdown' { Stop-Computer -Force -ErrorAction Stop }
                     'Lock' { [ScreenTimeTools.Workstation]::Lock() }
-                    default { throw '未知的到期动作。' }
+                    default { throw (Get-ScreenTimeText 'UnknownAction') }
                 }
             }
         }
-        catch { $state.Failure = $state.ActionText + '请求失败：' + $_.Exception.Message }
+        catch { $state.Failure = Get-ScreenTimeText 'RequestFailed' @($state.ActionText, $_.Exception.Message) }
         finally {
             $state.AllowClose = $true
             $state.Window.Close()
@@ -388,7 +457,7 @@ namespace ScreenTimeTools
 }
 catch {
     $workerExitCode = 1
-    try { $null = [System.Windows.MessageBox]::Show($_.Exception.Message, $caption + '错误') }
+    try { $null = [System.Windows.MessageBox]::Show($_.Exception.Message, (Get-ScreenTimeText 'ErrorTitle')) }
     catch { [Console]::Error.WriteLine($_.Exception.Message) }
 }
 finally {

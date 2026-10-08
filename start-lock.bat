@@ -2,7 +2,7 @@
 setlocal DisableDelayedExpansion
 set "screenTimePowerShell=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 set "screenTimeLog=%TEMP%\screen-time-tools-lock-startup-%RANDOM%-%RANDOM%.log"
-"%screenTimePowerShell%" -NoLogo -NoProfile -STA -WindowStyle Hidden -File "%~dp0src\lock-timer.ps1" >"%screenTimeLog%" 2>&1
+"%screenTimePowerShell%" -NoLogo -NoProfile -STA -WindowStyle Hidden -File "%~dp0src\lock-timer.ps1" %* >"%screenTimeLog%" 2>&1
 set "screenTimeExitCode=%ERRORLEVEL%"
 if "%screenTimeExitCode%"=="0" (
     del /q "%screenTimeLog%" >nul 2>&1

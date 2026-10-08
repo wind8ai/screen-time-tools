@@ -2,6 +2,8 @@
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
+. (Join-Path $root 'src\localization.ps1')
+Set-ScreenTimeLanguage 'en-US'
 
 function Assert-Equal {
     param($Actual, $Expected, [string]$Message)
@@ -94,7 +96,8 @@ $script:timerState = [pscustomobject]@{
     Status = [pscustomobject]@{ Text = ''; Foreground = '' }
     DurationSeconds = 3600.0
     DryRun = $false
-    ActionText = 'lock'
+    Action = 'Lock'
+    ActionText = 'Lock'
     TextBrush = 'text'
     WarningBrush = 'warning'
     AccentBrush = 'accent'

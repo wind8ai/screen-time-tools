@@ -1,64 +1,72 @@
-# 开发与验证
+# Development and validation
 
-## 目录职责
+[English](DEVELOPMENT.md) | [简体中文](DEVELOPMENT.zh-CN.md) · [User guide](../README.md)
 
-- 根目录：README、Git 配置和面向用户的 BAT 启动入口。
-- `src/`：PowerShell 程序。锁屏、关机入口只负责传递参数，共用 `countdown.ps1` 的设置、计时和到期动作。
-- `src/ui/`：WPF XAML 布局；不包含计时逻辑。
-- `scripts/`：维护与检查脚本。
-- `tests/`：无需额外测试框架的回归检查。
-- `docs/`：开发说明、验证步骤及效果图。
+## Responsibilities
 
-双击入口通过 `%~dp0` 定位 `src/`，程序通过 `$PSScriptRoot` 定位窗口资源，因此不依赖当前工作目录。分发时应保留完整目录结构。
+- Root: bilingual README files, Git settings and the two user-facing BAT launchers.
+- `config/`: the default UI language, documented in the bilingual [configuration guide](CONFIGURATION.md).
+- `src/`: PowerShell entry points, shared countdown behavior and localization functions.
+- `src/locales/`: matching `en-US.psd1` and `zh-CN.psd1` text dictionaries.
+- `src/ui/`: language-neutral WPF XAML layouts, with no countdown logic.
+- `scripts/` and `tests/`: dependency-free PowerShell syntax and regression checks.
+- `docs/`: paired English/Chinese guides and preview illustrations.
 
-## 编码与运行环境
+BAT launchers resolve `src/` through `%~dp0`. Scripts resolve UI resources, locale dictionaries and configuration relative to `$PSScriptRoot`, so launching from a different working directory works. Distribute the complete directory tree.
 
-面向 Windows PowerShell 5.1 的 `.ps1` 使用 **UTF-8 BOM + CRLF**，避免中文在旧版 PowerShell 中被按系统代码页读取。`.bat` 使用 ASCII + CRLF；XAML 使用 UTF-8，由程序显式以 UTF-8 读取。Git 属性负责规范换行。
+## Encoding and runtime
 
-运行环境为 Windows 10/11 的交互桌面与系统自带的 Windows PowerShell 5.1。启动入口包含 `-STA`，供 WPF 窗口使用。
+`.ps1` and `.psd1` files use **UTF-8 with BOM and CRLF** for Windows PowerShell 5.1 compatibility. BAT files use ASCII and CRLF. JSON and XAML use UTF-8; the scripts read them explicitly as UTF-8. Git attributes normalize repository line endings and restore Windows endings on checkout.
 
-## 自动检查
+The app targets Windows 10/11, an interactive signed-in desktop and built-in Windows PowerShell 5.1. Launchers use `-STA` for WPF. Localization and tests use built-in PowerShell APIs; no translation service or additional runtime dependency is required by the app.
 
-在仓库根目录运行：
+## Text resources
+
+User-facing strings belong in both locale dictionaries. Use the same keys and format placeholders, and reference them through `Get-ScreenTimeText`. Code identifiers remain stable in English; key implementation comments explain the behavior in English and Chinese.
+
+`Resolve-ScreenTimeLanguage` implements CLI/config/system selection. `Update-SetupLanguage` updates settings text and validation. The selected locale is explicitly passed to the worker. `Update-CountdownLanguage` refreshes the countdown's text without resetting its stopwatch, due time or duration.
+
+A settings dropdown and a countdown context menu expose the language choices. Their language names remain `中文` and `English` so either audience can recognize them.
+
+## Automated checks
+
+From the repository root:
 
 ```powershell
-powershell.exe -NoProfile -File .\scripts\check.ps1
+powershell.exe -NoProfile -File .\scripts\check.ps1 -Language en-US
+powershell.exe -NoProfile -File .\scripts\check.ps1 -Language zh-CN
 ```
 
-macOS/Linux 上如已安装 PowerShell 7，可执行：
+On macOS/Linux with PowerShell 7:
 
 ```sh
-pwsh -NoProfile -File ./scripts/check.ps1
+pwsh -NoProfile -File ./scripts/check.ps1 -Language en-US
 ```
 
-检查包括 PowerShell 语法、BAT 目标路径、XAML 控件绑定、8 档预设顺序与布局，以及真实显示函数的输入验证、选中状态、倒计时格式和 5 分钟提醒边界。测试使用模拟控件，不会启动计时、锁屏或关机。
+Checks cover syntax, BAT targets, XAML control names, the eight presets, input validation, countdown formatting, the five-minute warning boundary, language key/placeholder parity, CLI/config/system precedence, and localized messages for both actions and test mode. Tests use simulated controls and never launch a timer or invoke native actions.
 
-PowerShell 7 的检查通过不能替代 Windows PowerShell 5.1 的运行验证，也不能确认 WPF 实际显示效果。
+### Validation record — October 8, 2026
 
-### 本次整理的验证记录（2026-10-08）
+PowerShell 7.5.4 checks passed on macOS in both Chinese and English. Locale resources, XAML, launch paths, file encodings, document links and both previews were also checked. Windows PowerShell 5.1 compatibility, actual WPF rendering and real lock/shutdown actions still require Windows verification; PowerShell 7 checks do not confirm those outcomes.
 
-- 已在 macOS 静态检查 XAML XML、8 档预设顺序、两行四列布局、默认 60 分钟、控件绑定、资源和 BAT 路径、脚本编码及 README 本地链接。
-- 已渲染并检查效果图，Git 差异检查通过。
-- 当前环境没有 PowerShell，临时运行时下载失败，`scripts/check.ps1` 的语法与行为检查尚未执行；Windows WPF 显示、锁屏和关机也尚未验证。
+## Windows manual verification
 
-## Windows 手工验证
-
-1. 在 Windows PowerShell 5.1 运行上述自动检查。
-2. 双击两个 BAT，分别确认设置窗口打开；关闭一个后再打开另一个。
-3. 依次选择 10、15、20、25、30、45、60、90 分钟，确认输入框、选中状态和预计执行时间同步；默认选中 60 分钟。
-4. 输入自定义的 `37` 分钟，再输入空值、`0`、负数、小数和非数字，确认错误输入无法开始计时。
-5. 分别运行以下命令，等待显示 `00:00` 后窗口自动关闭，确认没有锁屏或关机：
+1. Run automated checks in Windows PowerShell 5.1, in both languages.
+2. Open each BAT launcher separately. Verify the settings dropdown switches all labels, accessibility names, error messages and expected times; the input value and selected duration remain unchanged.
+3. Test `auto`, `zh-CN` and `en-US` in configuration. Confirm CLI overrides configuration and explicit `-Language auto` follows the system.
+4. Click each preset: 10, 15, 20, 25, 30, 45, 60 and 90. Default selection is 60. Verify custom `37` is accepted and empty input, zero, negatives, decimals and text are rejected.
+5. Run the following tests **one at a time**. Confirm the chosen language reaches the countdown, right-click switching leaves the due time and countdown intact, and the window closes after `00:00` without any native action:
 
    ```powershell
-   powershell.exe -NoProfile -STA -File .\src\lock-timer.ps1 -Minutes 1 -DryRun
-   powershell.exe -NoProfile -STA -File .\src\shutdown-timer.ps1 -Minutes 1 -DryRun
+   powershell.exe -NoProfile -STA -File .\src\lock-timer.ps1 -Minutes 1 -DryRun -Language en-US
+   powershell.exe -NoProfile -STA -File .\src\shutdown-timer.ps1 -Minutes 1 -DryRun -Language zh-CN
    ```
 
-6. 在测试计时运行期间尝试再次开始计时，确认提示已有任务，原任务继续。
-7. 确认悬浮窗可以拖动，在不同显示缩放比例下文字和按钮没有裁切。
+6. While a test runs, start another timer. Confirm the localized duplicate-task message appears and the original task continues.
+7. Verify dragging and text layout at multiple display scaling settings, in both languages. Test an extracted folder with spaces and Chinese characters in its path, launching from another working directory.
 
-真实锁屏、强制关机需要在保存工作后单独验证。
+Save your work before separately verifying real lock or force-shutdown actions.
 
-## 效果图
+## Previews
 
-`images/overview.svg` 与 `images/overview.png` 为按 `src/ui/` 布局、颜色和文案绘制的界面示意，包含设置窗口及常规、最后 5 分钟倒计时。示例时刻是固定展示值，不代表运行状态；字体、阴影和尺寸以 Windows 实际渲染为准。
+`images/overview.svg` / `.png` show Chinese; `images/overview.en.svg` / `.png` show English. They illustrate the app's XAML, palette and actual text resources. The example times are fixed. Windows controls, fonts, shadows and dimensions can render differently.

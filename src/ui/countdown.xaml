@@ -4,7 +4,7 @@
         Topmost="True" ShowInTaskbar="False" ShowActivated="False" ResizeMode="NoResize"
         SizeToContent="Width" MinWidth="248" Height="120" Top="10"
         FontFamily="Microsoft YaHei UI" UseLayoutRounding="True" SnapsToDevicePixels="True"
-        Title="屏幕时间">
+        Title="Screen Time">
     <Border Margin="9" CornerRadius="14" Background="#FAFFFFFF"
             BorderBrush="#E5EAF3" BorderThickness="1" Padding="16,12">
         <Border.Effect>
@@ -15,7 +15,7 @@
                 <Border Name="ActionBadge" HorizontalAlignment="Left" CornerRadius="5" Padding="7,3" Background="#EEF2FF">
                     <TextBlock Name="ActionText" FontSize="11" FontWeight="SemiBold" Foreground="#4F6BF0"/>
                 </Border>
-                <TextBlock Name="StatusText" Text="计时中" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <TextBlock Name="StatusText" HorizontalAlignment="Right" VerticalAlignment="Center"
                            Margin="90,0,0,0" FontSize="11" Foreground="#6B7280"/>
             </Grid>
             <Grid Margin="0,4,0,0">

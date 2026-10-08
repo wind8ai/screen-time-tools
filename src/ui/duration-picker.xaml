@@ -3,7 +3,7 @@
         Width="440" MinHeight="520" SizeToContent="Height" WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" FontFamily="Microsoft YaHei UI"
-        UseLayoutRounding="True" SnapsToDevicePixels="True" Title="屏幕时间">
+        UseLayoutRounding="True" SnapsToDevicePixels="True" Title="Screen Time">
     <Window.Resources>
         <Style x:Key="SoftButton" TargetType="Button">
             <Setter Property="Height" Value="42"/>
@@ -54,35 +54,40 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid Name="TitleBar" Background="Transparent" Margin="0,0,0,22">
-                <TextBlock Name="AppLabel" Text="屏幕时间" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
+                <TextBlock Name="AppLabel" Margin="0,0,140,0" TextTrimming="CharacterEllipsis" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center"/>
+                <ComboBox Name="LanguagePicker" Width="98" Height="28" HorizontalAlignment="Right"
+                          Margin="0,0,40,0" FontFamily="Segoe UI, Microsoft YaHei UI" FontSize="12">
+                    <ComboBoxItem Content="中文" Tag="zh-CN"/>
+                    <ComboBoxItem Content="English" Tag="en-US"/>
+                </ComboBox>
                 <Button Name="CloseButton" Content="&#x00D7;" Width="28" Height="28"
                         HorizontalAlignment="Right" FontSize="19"
-                        Style="{StaticResource SoftButton}" AutomationProperties.Name="关闭设置"/>
+                        Style="{StaticResource SoftButton}"/>
             </Grid>
             <StackPanel Grid.Row="1" Margin="0,0,0,24">
-                <TextBlock Name="HeadingText" FontSize="25" FontWeight="SemiBold" Foreground="#172033"/>
-                <TextBlock Name="SubtitleText" FontSize="12" Foreground="#6B7280" Margin="0,8,0,0"/>
+                <TextBlock Name="HeadingText" FontSize="23" FontWeight="SemiBold" Foreground="#172033"/>
+                <TextBlock Name="SubtitleText" TextWrapping="Wrap" FontSize="12" Foreground="#6B7280" Margin="0,8,0,0"/>
             </StackPanel>
             <UniformGrid Grid.Row="2" Rows="2" Columns="4" Margin="-3,-4,-3,14">
-                <Button Name="Preset10" Tag="10" Content="10 分钟" Margin="3,4" Style="{StaticResource SoftButton}"/>
-                <Button Name="Preset15" Tag="15" Content="15 分钟" Margin="3,4" Style="{StaticResource SoftButton}"/>
-                <Button Name="Preset20" Tag="20" Content="20 分钟" Margin="3,4" Style="{StaticResource SoftButton}"/>
-                <Button Name="Preset25" Tag="25" Content="25 分钟" Margin="3,4" Style="{StaticResource SoftButton}"/>
-                <Button Name="Preset30" Tag="30" Content="30 分钟" Margin="3,4" Style="{StaticResource SoftButton}"/>
-                <Button Name="Preset45" Tag="45" Content="45 分钟" Margin="3,4" Style="{StaticResource SoftButton}"/>
-                <Button Name="Preset60" Tag="60" Content="60 分钟" Margin="3,4" Style="{StaticResource SoftButton}"/>
-                <Button Name="Preset90" Tag="90" Content="90 分钟" Margin="3,4" Style="{StaticResource SoftButton}"/>
+                <Button Name="Preset10" Tag="10" Margin="3,4" Style="{StaticResource SoftButton}"/>
+                <Button Name="Preset15" Tag="15" Margin="3,4" Style="{StaticResource SoftButton}"/>
+                <Button Name="Preset20" Tag="20" Margin="3,4" Style="{StaticResource SoftButton}"/>
+                <Button Name="Preset25" Tag="25" Margin="3,4" Style="{StaticResource SoftButton}"/>
+                <Button Name="Preset30" Tag="30" Margin="3,4" Style="{StaticResource SoftButton}"/>
+                <Button Name="Preset45" Tag="45" Margin="3,4" Style="{StaticResource SoftButton}"/>
+                <Button Name="Preset60" Tag="60" Margin="3,4" Style="{StaticResource SoftButton}"/>
+                <Button Name="Preset90" Tag="90" Margin="3,4" Style="{StaticResource SoftButton}"/>
             </UniformGrid>
             <StackPanel Grid.Row="3">
-                <TextBlock Text="自定义时长" FontSize="12" Foreground="#6B7280" Margin="0,0,0,8"/>
+                <TextBlock Name="CustomDurationLabel" FontSize="12" Foreground="#6B7280" Margin="0,0,0,8"/>
                 <Border Name="MinutesBorder" CornerRadius="10" Background="#F8FAFD"
                         BorderBrush="#E5EAF3" BorderThickness="1" Height="58">
                     <Grid Margin="16,0">
                         <TextBox Name="MinutesInput" Text="60" MaxLength="10" FontSize="25"
                                  FontFamily="Segoe UI" Foreground="#172033" Background="Transparent"
                                  BorderThickness="0" Margin="0,0,42,0" VerticalContentAlignment="Center"
-                                 AcceptsReturn="False" AutomationProperties.Name="分钟数"/>
-                        <TextBlock Text="分钟" FontSize="12" Foreground="#6B7280"
+                                 AcceptsReturn="False"/>
+                        <TextBlock Name="MinutesUnitLabel" FontSize="12" Foreground="#6B7280"
                                    HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
@@ -106,8 +111,8 @@
                     <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Name="CancelButton" Content="取消" IsCancel="True" Style="{StaticResource SoftButton}"/>
-                <Button Name="StartButton" Grid.Column="2" Content="开始计时" IsDefault="True"
+                <Button Name="CancelButton" IsCancel="True" Style="{StaticResource SoftButton}"/>
+                <Button Name="StartButton" Grid.Column="2" IsDefault="True"
                         FontWeight="SemiBold" Style="{StaticResource SoftButton}" Background="#4F6BF0" Foreground="White"/>
             </Grid>
         </Grid>
