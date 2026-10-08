@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="970" viewBox="0 0 1120 970">
+<defs><filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="12" flood-color="#1D2A45" flood-opacity="0.10"/></filter></defs>
+<rect width="1120" height="970" rx="24" fill="#F3F5FA"/>
+<g font-family="Microsoft YaHei UI, PingFang SC, Arial, sans-serif">
+<text x="56" y="49" fill="#172033" font-size="25" font-weight="600" text-anchor="start">Screen Time Tools</text>
+<text x="56" y="77" fill="#6B7280" font-size="13" font-weight="400" text-anchor="start">定时锁屏 · 定时关机 · 8 档时间选择</text>
+<text x="1064" y="48" fill="#6B7280" font-size="12" font-weight="400" text-anchor="end">界面效果示意</text>
+<text x="1064" y="70" fill="#6B7280" font-size="11" font-weight="400" text-anchor="end">示例时间 14:00</text>
+<rect x="108" y="108" width="416" height="574" rx="18" fill="#FFFFFF" stroke="#E5EAF3" filter="url(#shadow)"/>
+<text x="137" y="146" fill="#6B7280" font-size="12" font-weight="400" text-anchor="start">屏幕时间</text>
+<rect x="466" y="128" width="28" height="28" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="480" y="148" fill="#172033" font-size="19" font-weight="400" text-anchor="middle">×</text>
+<text x="137" y="210" fill="#172033" font-size="25" font-weight="600" text-anchor="start">多久后锁屏？</text>
+<text x="137" y="238" fill="#6B7280" font-size="12" font-weight="400" text-anchor="start">选择时长，到时自动锁定电脑。</text>
+<rect x="134" y="267" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="176.5" y="293" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">10 分钟</text>
+<rect x="225" y="267" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="267.5" y="293" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">15 分钟</text>
+<rect x="316" y="267" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="358.5" y="293" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">20 分钟</text>
+<rect x="407" y="267" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="449.5" y="293" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">25 分钟</text>
+<rect x="134" y="317" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="176.5" y="343" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">30 分钟</text>
+<rect x="225" y="317" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="267.5" y="343" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">45 分钟</text>
+<rect x="316" y="317" width="85" height="42" rx="9" fill="#EEF2FF" stroke="#4F6BF0"/>
+<text x="358.5" y="343" fill="#4F6BF0" font-size="13" font-weight="400" text-anchor="middle">60 分钟</text>
+<rect x="407" y="317" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="449.5" y="343" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">90 分钟</text>
+<text x="137" y="392" fill="#6B7280" font-size="12" font-weight="400" text-anchor="start">自定义时长</text>
+<rect x="137" y="406" width="358" height="58" rx="10" fill="#F8FAFD" stroke="#E5EAF3"/>
+<text x="153" y="444" fill="#172033" font-size="25" font-weight="400" text-anchor="start" font-family="Segoe UI, Arial, sans-serif">60</text>
+<text x="479" y="441" fill="#6B7280" font-size="12" font-weight="400" text-anchor="end">分钟</text>
+<rect x="137" y="489" width="358" height="43" rx="10" fill="#EEF2FF" stroke="none"/>
+<text x="151" y="516" fill="#6B7280" font-size="12" font-weight="400" text-anchor="start">预计锁屏</text>
+<text x="481" y="516" fill="#4F6BF0" font-size="15" font-weight="600" text-anchor="end">今天 15:00</text>
+<text x="137" y="561" fill="#6B7280" font-size="11" font-weight="400" text-anchor="start">解锁时使用 Windows 登录方式。</text>
+<rect x="137" y="592" width="96" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="185" y="619" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">取消</text>
+<rect x="245" y="592" width="250" height="42" rx="9" fill="#4F6BF0" stroke="#4F6BF0"/>
+<text x="370.0" y="619" fill="#FFFFFF" font-size="13" font-weight="600" text-anchor="middle">开始计时</text>
+<rect x="596" y="108" width="416" height="574" rx="18" fill="#FFFFFF" stroke="#E5EAF3" filter="url(#shadow)"/>
+<text x="625" y="146" fill="#6B7280" font-size="12" font-weight="400" text-anchor="start">屏幕时间</text>
+<rect x="954" y="128" width="28" height="28" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="968" y="148" fill="#172033" font-size="19" font-weight="400" text-anchor="middle">×</text>
+<text x="625" y="210" fill="#172033" font-size="25" font-weight="600" text-anchor="start">多久后关机？</text>
+<text x="625" y="238" fill="#6B7280" font-size="12" font-weight="400" text-anchor="start">选择时长，到时自动关闭电脑。</text>
+<rect x="622" y="267" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="664.5" y="293" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">10 分钟</text>
+<rect x="713" y="267" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="755.5" y="293" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">15 分钟</text>
+<rect x="804" y="267" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="846.5" y="293" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">20 分钟</text>
+<rect x="895" y="267" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="937.5" y="293" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">25 分钟</text>
+<rect x="622" y="317" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="664.5" y="343" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">30 分钟</text>
+<rect x="713" y="317" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="755.5" y="343" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">45 分钟</text>
+<rect x="804" y="317" width="85" height="42" rx="9" fill="#FFF3EB" stroke="#D97845"/>
+<text x="846.5" y="343" fill="#D97845" font-size="13" font-weight="400" text-anchor="middle">60 分钟</text>
+<rect x="895" y="317" width="85" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="937.5" y="343" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">90 分钟</text>
+<text x="625" y="392" fill="#6B7280" font-size="12" font-weight="400" text-anchor="start">自定义时长</text>
+<rect x="625" y="406" width="358" height="58" rx="10" fill="#F8FAFD" stroke="#E5EAF3"/>
+<text x="641" y="444" fill="#172033" font-size="25" font-weight="400" text-anchor="start" font-family="Segoe UI, Arial, sans-serif">60</text>
+<text x="967" y="441" fill="#6B7280" font-size="12" font-weight="400" text-anchor="end">分钟</text>
+<rect x="625" y="489" width="358" height="43" rx="10" fill="#FFF3EB" stroke="none"/>
+<text x="639" y="516" fill="#6B7280" font-size="12" font-weight="400" text-anchor="start">预计关机</text>
+<text x="969" y="516" fill="#D97845" font-size="15" font-weight="600" text-anchor="end">今天 15:00</text>
+<text x="625" y="561" fill="#6B7280" font-size="11" font-weight="400" text-anchor="start">到时将强制关闭应用，请提前保存工作。</text>
+<rect x="625" y="592" width="96" height="42" rx="9" fill="#F6F8FC" stroke="#E5EAF3"/>
+<text x="673" y="619" fill="#172033" font-size="13" font-weight="400" text-anchor="middle">取消</text>
+<rect x="733" y="592" width="250" height="42" rx="9" fill="#D97845" stroke="#D97845"/>
+<text x="858.0" y="619" fill="#FFFFFF" font-size="13" font-weight="600" text-anchor="middle">开始计时</text>
+<text x="56" y="740" fill="#172033" font-size="16" font-weight="600" text-anchor="start">悬浮倒计时</text>
+<text x="1064" y="740" fill="#6B7280" font-size="12" font-weight="400" text-anchor="end">可拖动调整位置 · 最后 5 分钟红色提醒</text>
+<rect x="56" y="766" width="314" height="102" rx="14" fill="#FFFFFF" stroke="#E5EAF3" filter="url(#shadow)"/>
+<rect x="73" y="779" width="42" height="22" rx="5" fill="#EEF2FF" stroke="none"/>
+<text x="94" y="794" fill="#4F6BF0" font-size="11" font-weight="600" text-anchor="middle">锁屏</text>
+<text x="353" y="794" fill="#6B7280" font-size="11" font-weight="400" text-anchor="end">计时中</text>
+<text x="73" y="837" fill="#172033" font-size="30" font-weight="700" text-anchor="start" font-family="Consolas, Menlo, monospace">59:42</text>
+<text x="353" y="832" fill="#6B7280" font-size="10" font-weight="400" text-anchor="end">预计 15:00</text>
+<rect x="73" y="849" width="280" height="3" rx="2" fill="#EDF1F7" stroke="none"/>
+<rect x="73" y="849" width="278.6" height="3" rx="2" fill="#4F6BF0" stroke="none"/>
+<rect x="403" y="766" width="314" height="102" rx="14" fill="#FFFFFF" stroke="#E5EAF3" filter="url(#shadow)"/>
+<rect x="420" y="779" width="42" height="22" rx="5" fill="#FFF3EB" stroke="none"/>
+<text x="441" y="794" fill="#D97845" font-size="11" font-weight="600" text-anchor="middle">关机</text>
+<text x="700" y="794" fill="#6B7280" font-size="11" font-weight="400" text-anchor="end">计时中</text>
+<text x="420" y="837" fill="#172033" font-size="30" font-weight="700" text-anchor="start" font-family="Consolas, Menlo, monospace">24:18</text>
+<text x="700" y="832" fill="#6B7280" font-size="10" font-weight="400" text-anchor="end">预计 15:00</text>
+<rect x="420" y="849" width="280" height="3" rx="2" fill="#EDF1F7" stroke="none"/>
+<rect x="420" y="849" width="113.4" height="3" rx="2" fill="#D97845" stroke="none"/>
+<rect x="750" y="766" width="314" height="102" rx="14" fill="#FFFFFF" stroke="#E5EAF3" filter="url(#shadow)"/>
+<rect x="767" y="779" width="42" height="22" rx="5" fill="#FFF3EB" stroke="none"/>
+<text x="788" y="794" fill="#D97845" font-size="11" font-weight="600" text-anchor="middle">关机</text>
+<text x="1047" y="794" fill="#DC5656" font-size="11" font-weight="400" text-anchor="end">即将关机</text>
+<text x="767" y="837" fill="#DC5656" font-size="30" font-weight="700" text-anchor="start" font-family="Consolas, Menlo, monospace">04:59</text>
+<text x="1047" y="832" fill="#6B7280" font-size="10" font-weight="400" text-anchor="end">预计 15:00</text>
+<rect x="767" y="849" width="280" height="3" rx="2" fill="#EDF1F7" stroke="none"/>
+<rect x="767" y="849" width="23.240000000000002" height="3" rx="2" fill="#DC5656" stroke="none"/>
+<text x="56" y="918" fill="#6B7280" font-size="12" font-weight="400" text-anchor="start">按程序 XAML 的布局、颜色与文案绘制；字体、阴影和尺寸以 Windows 实际渲染为准。</text>
+<text x="56" y="941" fill="#6B7280" font-size="11" font-weight="400" text-anchor="start">默认 60 分钟，也可输入自定义的正整数分钟数。</text>
+</g></svg>
